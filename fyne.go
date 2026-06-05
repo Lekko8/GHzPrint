@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-//go:embed icon.jpg
+//go:embed icons/icon.jpg
 var iconData []byte
 
 func init() {
