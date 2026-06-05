@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="WalkGo" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="GHzPrint" />
+    <working_directory value="$PROJECT_DIR$" />
+    <go_parameters value="-tags=walk -ldflags=&quot;-s -w -H windowsgui -buildmode=exe&quot;" />
+    <envs>
+      <env name="CGO_ENABLED" value="1" />
+      <env name="GOOS" value="windows" />
+      <env name="GOARCH" value="amd64" />
+    </envs>
+    <kind value="PACKAGE" />
+    <package value="file-app" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$" />
+    <output_directory value="$PROJECT_DIR$/build" />
+    <method v="2" />
+  </configuration>
+</component>
