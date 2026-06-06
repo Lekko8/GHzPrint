@@ -29,30 +29,28 @@ func readFiles(targetDate string) []FileWData {
 		return sampleFiles // если файлов нет, то возвращаем пустой список
 	}
 	for _, file := range files { // ищем подходящие файлы
-		info, _ := os.Stat(filepath.Join("C:\\P3-34 measurments", file.Name())) // выбираем файл
-		info.ModTime().Format("02.01.2006")                                     // форматируем время
-		//slices.Contains(strings.Split(targetDate, " "), fileDateTime(file.Name()).Format("02.01.2006"))
 		if !file.IsDir() && filepath.Ext(file.Name()) == ".csv" && slices.Contains(strings.Split(targetDate, " "), fileDateTime(file.Name()).Format("02.01.2006")) {
 			filteredFiles = append(filteredFiles, file) // кладём подходящий
 		}
 	}
 	sorting(filteredFiles) // сортируем
 	for _, file := range filteredFiles {
-		var first FileWData // выбираем файл
-		//info, _ := os.Stat(filepath.Join("C:\\P3-34 measurments", file.Name())) // собираем метаинформацию файла
-		first.filename = file.Name()                 // заполняем имя файла
-		first.sampletime = fileDateTime(file.Name()) // заполняем время создания
-		first.sample = sampleName(first.filename)    // заполняем имя образца
-		sampleFiles = append(sampleFiles, first)     // заполняем список файлов файлами
+		sampleFiles = append(sampleFiles, createFileWData(file)) // заполняем список файлов файлами
 	}
 
 	return sampleFiles // []FileWData без измеренных данных
 }
 
+func createFileWData(file os.DirEntry) FileWData {
+	var first FileWData                          // выбираем файл
+	first.filename = file.Name()                 // заполняем имя файла
+	first.sampletime = fileDateTime(file.Name()) // заполняем время создания
+	first.sample = sampleName(first.filename)    // заполняем имя образца
+	return first
+}
+
 // берём имя образца
 func sampleName(filename string) string {
-	//return strings.Split(strings.Split(filename, "_")[4], ".")[0]
-
 	base := strings.TrimSuffix(filename, ".csv")
 	parts := strings.Split(base, "_")
 
@@ -60,9 +58,7 @@ func sampleName(filename string) string {
 		log.Printf("Предупреждение: неожиданный формат имени файла: %s", filename)
 		return base
 	}
-	sampleName := strings.Join(parts[4:], "_")
-
-	return sampleName
+	return strings.Join(parts[4:], "_")
 }
 
 // берём дату и время файла (из имени)
@@ -78,8 +74,8 @@ func fileDateTime(filename string) time.Time {
 // сортрировка по дате
 func sorting(files []os.DirEntry) {
 	sort.Slice(files, func(i, j int) bool {
-		info1 := fileDateTime(filepath.Join("C:\\P3-34 measurments", files[i].Name()))
-		info2 := fileDateTime(filepath.Join("C:\\P3-34 measurments", files[j].Name()))
+		info1 := fileDateTime(files[i].Name())
+		info2 := fileDateTime(files[j].Name())
 		return info1.Before(info2)
 	})
 }
