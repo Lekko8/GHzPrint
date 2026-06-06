@@ -44,12 +44,6 @@ func (g *walkGUI) Run() error {
 			Label{Text: "Дата искомых файлов:"},
 			LineEdit{AssignTo: &inputData},
 
-			Label{Text: "Найденные файлы:"},
-			TextEdit{AssignTo: &statusFiles, ReadOnly: true, VScroll: true},
-
-			Label{Text: "Введите номер заказа:"},
-			LineEdit{AssignTo: &inputOrderName},
-
 			PushButton{
 				Text: "Повторить поиск",
 				OnClicked: func() {
@@ -59,6 +53,12 @@ func (g *walkGUI) Run() error {
 					statusLabel.SetText("Прочитаны файлы за " + capturedDate)
 				},
 			},
+
+			Label{Text: "Найденные файлы:"},
+			TextEdit{AssignTo: &statusFiles, ReadOnly: true, VScroll: true},
+
+			Label{Text: "Введите номер заказа:"},
+			LineEdit{AssignTo: &inputOrderName},
 
 			PushButton{
 				Text: "Создать .xlsx",
