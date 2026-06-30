@@ -8,6 +8,7 @@ import (
 type Data struct {
 	avgvalue string
 	maxvalue string
+	isValid  bool
 }
 
 type FinalData struct {
@@ -36,23 +37,52 @@ func calculateFiles(fileMass []FileWData) []FinalData {
 
 // подстчёт данных для R, выводит массив средних значений
 func calculateData(datafile FileWData) []FinalData {
-	convertedData := make([]FinalData, len(datafile.data))
-	for i := range datafile.data {
-		convertedData[i] = stringToNum(datafile.data[i])
+	if len(datafile.data) == 0 {
+		return []FinalData{}
 	}
 
-	calculatedData := make([]FinalData, 6)
+	blockSize := 5
+	dataLen := len(datafile.data)
 
-	for a := 0; a < 6; a++ {
+	numBlocks := dataLen / blockSize
+	if dataLen%blockSize != 0 {
+		numBlocks++
+	}
+
+	calculatedData := make([]FinalData, numBlocks)
+
+	for a := 0; a < numBlocks; a++ {
 		var sumAvg, sumMax float32
-		start := a * 5
-		for i := start; i < start+5; i++ {
-			sumAvg += convertedData[i].avgvalue
-			sumMax += convertedData[i].maxvalue
+		var count int
+
+		start := a * blockSize
+		end := start + blockSize
+		if end > dataLen {
+			end = dataLen
 		}
-		calculatedData[a].avgvalue = sumAvg / 5
-		calculatedData[a].maxvalue = sumMax / 5
+
+		for i := start; i < end; i++ {
+			// ТОЛЬКО ВАЛИДНЫЕ СТРОКИ
+			if !datafile.data[i].isValid {
+				continue
+			}
+
+			// ПРЕОБРАЗУЕМ СТРОКУ В ЧИСЛО
+			num := stringToNum(datafile.data[i])
+			sumAvg += num.avgvalue
+			sumMax += num.maxvalue
+			count++
+		}
+
+		if count > 0 {
+			calculatedData[a].avgvalue = sumAvg / float32(count)
+			calculatedData[a].maxvalue = sumMax / float32(count)
+		} else {
+			calculatedData[a].avgvalue = 0
+			calculatedData[a].maxvalue = 0
+		}
 	}
+
 	return calculatedData
 }
 

@@ -6,48 +6,116 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 )
 
 // заполняет ВСЕ файлы данными в FileWData.data
 func dataCreate(files []FileWData) []FileWData {
-	var filledfiles []FileWData
+	var result []FileWData
+
 	for _, file := range files {
-		filledfiles = append(filledfiles, readExcelData(file))
+		filledFile := readExcelData(file)
+		result = append(result, filledFile)
 	}
-	return filledfiles
+
+	return result
 }
 
 // читает данные из .csv и заполняет FileWData.data
 func readExcelData(file FileWData) FileWData {
-	fileR, err := os.Open(filepath.Join("C:\\P3-34 measurments", file.filename))
-	defer fileR.Close()
+	csvPath := filepath.Join("C:\\P3-34 measurments", file.filename)
+	csvFile, err := os.Open(csvPath)
 	if err != nil {
-		log.Printf("ОШИБКА: %v", err)
+		log.Printf("ОШИБКА: не удалось открыть файл %s: %v", file.filename, err)
 		return file
 	}
-	reader := csv.NewReader(fileR)
-	reader.Comma = ';'
-	for {
-		var str, _ = reader.Read()
-		if str == nil || len(str) == 0 || str[0] != "interval_start" {
-			continue
-		}
-		break
-	}
+	defer csvFile.Close()
 
+	reader := csv.NewReader(csvFile)
+	reader.Comma = ';'
+	reader.FieldsPerRecord = -1
+	reader.LazyQuotes = true
+
+	var dataList []Data
+
+	// Пропускаем строки до заголовка
 	for {
-		data, err := reader.Read()
+		record, err := reader.Read()
 		if err == io.EOF {
-			break
+			log.Printf("ПРЕДУПРЕЖДЕНИЕ: файл %s не содержит данных", file.filename)
+			return file
 		}
 		if err != nil {
 			log.Printf("ОШИБКА: %v", err)
 			return file
 		}
-		var temp Data
-		temp.avgvalue = data[3]
-		temp.maxvalue = data[5]
-		file.data = append(file.data, temp)
+		if len(record) > 0 && strings.Contains(strings.ToLower(record[0]), "interval_start") {
+			break
+		}
 	}
+
+	// Читаем строки с данными
+	for {
+		record, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Printf("ОШИБКА при чтении файла %s: %v", file.filename, err)
+			continue
+		}
+
+		// Проверяем пустую строку
+		if isEmptyRecord(record) {
+			dataList = append(dataList, Data{
+				avgvalue: "",
+				maxvalue: "",
+				isValid:  false,
+			})
+			continue
+		}
+
+		// Проверяем, что это строка с данными (содержит дату)
+		if len(record) < 6 || !strings.Contains(record[0], "202") {
+			continue
+		}
+
+		avgVal := strings.TrimSpace(record[3])
+		maxVal := strings.TrimSpace(record[5])
+
+		// Проверяем, что это числа
+		_, errAvg := strconv.ParseFloat(strings.ReplaceAll(avgVal, ",", "."), 64)
+		_, errMax := strconv.ParseFloat(strings.ReplaceAll(maxVal, ",", "."), 64)
+
+		if errAvg == nil && errMax == nil {
+			dataList = append(dataList, Data{
+				avgvalue: avgVal,
+				maxvalue: maxVal,
+				isValid:  true,
+			})
+		} else {
+			dataList = append(dataList, Data{
+				avgvalue: "",
+				maxvalue: "",
+				isValid:  false,
+			})
+		}
+	}
+
+	file.data = dataList
 	return file
+}
+
+// Проверка, что запись пустая
+func isEmptyRecord(record []string) bool {
+	if len(record) == 0 {
+		return true
+	}
+	for _, field := range record {
+		if strings.TrimSpace(field) != "" {
+			return false
+		}
+	}
+	return true
 }
