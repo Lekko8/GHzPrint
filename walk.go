@@ -28,12 +28,10 @@ func (g *walkGUI) Run() error {
 
 	targetDate := time.Now().Format("02.01.2006")
 
-	// Переменные для захвата в замыкания
 	var capturedFiles []FileWData
 	var capturedDate = targetDate
 	appIcon, _ := walk.NewIconFromResourceId(2)
 
-	// Создаём окно
 	mainWindow := MainWindow{
 		AssignTo: &mw,
 		Title:    "Обработка файлов ГГц",
@@ -75,22 +73,17 @@ func (g *walkGUI) Run() error {
 		},
 	}
 
-	// Создаём окно
 	if err := mainWindow.Create(); err != nil {
 		return err
 	}
 
-	// Устанавливаем значения
 	inputData.SetText(targetDate)
 
-	// ИНИЦИАЛИЗАЦИЯ ПОИСКА ПРИ ЗАПУСКЕ
 	capturedDate = targetDate
 	capturedFiles = readFiles(targetDate)
 	statusFiles.SetText(buildNames(capturedFiles))
 	statusLabel.SetText("Прочитаны файлы за " + targetDate)
 
-	// Запускаем окно
 	mw.Run()
-
 	return nil
 }

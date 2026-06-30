@@ -62,12 +62,9 @@ func calculateData(datafile FileWData) []FinalData {
 		}
 
 		for i := start; i < end; i++ {
-			// ТОЛЬКО ВАЛИДНЫЕ СТРОКИ
 			if !datafile.data[i].isValid {
 				continue
 			}
-
-			// ПРЕОБРАЗУЕМ СТРОКУ В ЧИСЛО
 			num := stringToNum(datafile.data[i])
 			sumAvg += num.avgvalue
 			sumMax += num.maxvalue

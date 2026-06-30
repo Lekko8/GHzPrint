@@ -15,7 +15,7 @@ func dataCreate(files []FileWData) []FileWData {
 	var result []FileWData
 
 	for _, file := range files {
-		filledFile := readExcelData(file)
+		filledFile := readCSVData(file)
 		result = append(result, filledFile)
 	}
 
@@ -23,14 +23,18 @@ func dataCreate(files []FileWData) []FileWData {
 }
 
 // читает данные из .csv и заполняет FileWData.data
-func readExcelData(file FileWData) FileWData {
+func readCSVData(file FileWData) FileWData {
 	csvPath := filepath.Join("C:\\P3-34 measurments", file.filename)
 	csvFile, err := os.Open(csvPath)
 	if err != nil {
 		log.Printf("ОШИБКА: не удалось открыть файл %s: %v", file.filename, err)
 		return file
 	}
-	defer csvFile.Close()
+	defer func() {
+		if err := csvFile.Close(); err != nil {
+			log.Printf("ОШИБКА: не удалось закрыть файл %s: %v", file.filename, err)
+		}
+	}()
 
 	reader := csv.NewReader(csvFile)
 	reader.Comma = ';'
@@ -39,7 +43,6 @@ func readExcelData(file FileWData) FileWData {
 
 	var dataList []Data
 
-	// Пропускаем строки до заголовка
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -55,7 +58,6 @@ func readExcelData(file FileWData) FileWData {
 		}
 	}
 
-	// Читаем строки с данными
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
@@ -66,7 +68,6 @@ func readExcelData(file FileWData) FileWData {
 			continue
 		}
 
-		// Проверяем пустую строку
 		if isEmptyRecord(record) {
 			dataList = append(dataList, Data{
 				avgvalue: "",
@@ -76,7 +77,6 @@ func readExcelData(file FileWData) FileWData {
 			continue
 		}
 
-		// Проверяем, что это строка с данными (содержит дату)
 		if len(record) < 6 || !strings.Contains(record[0], "202") {
 			continue
 		}
@@ -84,7 +84,6 @@ func readExcelData(file FileWData) FileWData {
 		avgVal := strings.TrimSpace(record[3])
 		maxVal := strings.TrimSpace(record[5])
 
-		// Проверяем, что это числа
 		_, errAvg := strconv.ParseFloat(strings.ReplaceAll(avgVal, ",", "."), 64)
 		_, errMax := strconv.ParseFloat(strings.ReplaceAll(maxVal, ",", "."), 64)
 
@@ -107,7 +106,7 @@ func readExcelData(file FileWData) FileWData {
 	return file
 }
 
-// Проверка, что запись пустая
+// проверяем, что запись пустая
 func isEmptyRecord(record []string) bool {
 	if len(record) == 0 {
 		return true
