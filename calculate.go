@@ -6,18 +6,18 @@ import (
 )
 
 type Data struct {
-	avgvalue string
-	maxvalue string
+	avgValue string
+	maxValue string
 	isValid  bool
 }
 
 type FinalData struct {
-	samplename string
-	avgvalue   float32
-	maxvalue   float32
+	sampleName string
+	avgValue   float32
+	maxValue   float32
 }
 
-// считает все данные и выводит полный список
+// Считает все данные и выводит полный список
 func calculateFiles(fileMass []FileWData) []FinalData {
 	var calculatedFiles []FinalData
 
@@ -26,16 +26,16 @@ func calculateFiles(fileMass []FileWData) []FinalData {
 
 		for _, datas := range fileData {
 			calculatedFiles = append(calculatedFiles, FinalData{
-				samplename: file.sample,
-				avgvalue:   datas.avgvalue,
-				maxvalue:   datas.maxvalue,
+				sampleName: file.sample,
+				avgValue:   datas.avgValue,
+				maxValue:   datas.maxValue,
 			})
 		}
 	}
 	return calculatedFiles
 }
 
-// подстчёт данных для R, выводит массив средних значений
+// Подсчёт данных для R, выводит массив средних значений
 func calculateData(datafile FileWData) []FinalData {
 	if len(datafile.data) == 0 {
 		return []FinalData{}
@@ -56,34 +56,31 @@ func calculateData(datafile FileWData) []FinalData {
 		var count int
 
 		start := a * blockSize
-		end := start + blockSize
-		if end > dataLen {
-			end = dataLen
-		}
+		end := min(start+blockSize, dataLen)
 
 		for i := start; i < end; i++ {
 			if !datafile.data[i].isValid {
 				continue
 			}
 			num := stringToNum(datafile.data[i])
-			sumAvg += num.avgvalue
-			sumMax += num.maxvalue
+			sumAvg += num.avgValue
+			sumMax += num.maxValue
 			count++
 		}
 
 		if count > 0 {
-			calculatedData[a].avgvalue = sumAvg / float32(count)
-			calculatedData[a].maxvalue = sumMax / float32(count)
+			calculatedData[a].avgValue = sumAvg / float32(count)
+			calculatedData[a].maxValue = sumMax / float32(count)
 		} else {
-			calculatedData[a].avgvalue = 0
-			calculatedData[a].maxvalue = 0
+			calculatedData[a].avgValue = 0
+			calculatedData[a].maxValue = 0
 		}
 	}
 
 	return calculatedData
 }
 
-// конвертер значений из string в float32
+// Конвертер значений из string в float32
 func stringToNum(Input Data) FinalData {
 	var Output FinalData
 
@@ -99,8 +96,8 @@ func stringToNum(Input Data) FinalData {
 		return float32(val)
 	}
 
-	Output.avgvalue = parseValue(Input.avgvalue)
-	Output.maxvalue = parseValue(Input.maxvalue)
+	Output.avgValue = parseValue(Input.avgValue)
+	Output.maxValue = parseValue(Input.maxValue)
 
 	return Output
 }

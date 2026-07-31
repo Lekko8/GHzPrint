@@ -4,6 +4,7 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/lxn/walk"
@@ -30,7 +31,10 @@ func (g *walkGUI) Run() error {
 
 	var capturedFiles []FileWData
 	var capturedDate = targetDate
-	appIcon, _ := walk.NewIconFromResourceId(2)
+	appIcon, err := walk.NewIconFromResourceId(2)
+	if err != nil {
+		log.Print(err)
+	}
 
 	mainWindow := MainWindow{
 		AssignTo: &mw,
@@ -64,7 +68,7 @@ func (g *walkGUI) Run() error {
 					orderName := inputOrderName.Text()
 					files := dataCreate(capturedFiles)
 					results := calculateFiles(files)
-					createrXlsx(files, results, orderName, capturedDate)
+					createXlsx(files, results, orderName, capturedDate)
 					statusLabel.SetText("Файл .xlsx успешно создан")
 				},
 			},

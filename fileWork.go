@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,19 +11,19 @@ import (
 )
 
 type FileWData struct {
-	filename   string
+	fileName   string
 	sample     string
-	sampletime time.Time
+	sampleTime time.Time
 	data       []Data
 }
 
-// читает файлы и собирает из них данные (кроме измерений)
+// Читает файлы и собирает из них данные (кроме измерений)
 func readFiles(targetDate string) []FileWData {
 
 	var sampleFiles []FileWData
 	var filteredFiles []os.DirEntry
 
-	files, err := os.ReadDir("C:\\P3-34 measurments") // читаем все файлы в папке
+	files, err := os.ReadDir(filePath) // читаем все файлы в папке
 	if err != nil {
 		return sampleFiles // если файлов нет, то возвращаем пустой список
 	}
@@ -43,13 +42,13 @@ func readFiles(targetDate string) []FileWData {
 
 func createFileWData(file os.DirEntry) FileWData {
 	var first FileWData                          // выбираем файл
-	first.filename = file.Name()                 // заполняем имя файла
-	first.sampletime = fileDateTime(file.Name()) // заполняем время создания
-	first.sample = sampleName(first.filename)    // заполняем имя образца
+	first.fileName = file.Name()                 // заполняем имя файла
+	first.sampleTime = fileDateTime(file.Name()) // заполняем время создания
+	first.sample = sampleName(first.fileName)    // заполняем имя образца
 	return first
 }
 
-// берём имя образца
+// Берём имя образца
 func sampleName(filename string) string {
 	base := strings.TrimSuffix(filename, ".csv")
 	parts := strings.Split(base, "_")
@@ -61,7 +60,7 @@ func sampleName(filename string) string {
 	return strings.Join(parts[4:], "_")
 }
 
-// берём дату и время файла (из имени)
+// Берём дату и время файла (из имени)
 func fileDateTime(filename string) time.Time {
 	layout := "20060102150405"
 	DateTime, err := time.Parse(layout, strings.Split(strings.Split(filename, "_")[2]+strings.Split(filename, "_")[3], ".")[0])
@@ -71,7 +70,7 @@ func fileDateTime(filename string) time.Time {
 	return DateTime
 }
 
-// сортрировка по дате
+// Сортировка по дате
 func sorting(files []os.DirEntry) {
 	sort.Slice(files, func(i, j int) bool {
 		info1 := fileDateTime(files[i].Name())
@@ -80,7 +79,7 @@ func sorting(files []os.DirEntry) {
 	})
 }
 
-// собираем список файлов берущихся в работу
+// Собираем список файлов берущихся в работу
 func buildNames(files []FileWData) string {
 	if len(files) == 0 {
 		return ""
@@ -90,12 +89,13 @@ func buildNames(files []FileWData) string {
 		if filenames.Len() > 0 {
 			filenames.WriteString("\n")
 		}
-		filenames.WriteString(file.filename)
+		filenames.WriteString(file.fileName)
 	}
 	return filenames.String()
 }
 
-// создание .log файла для записи ошибок
+/*
+// Создание .log файла для записи ошибок
 func setupLogging() {
 	filename := fmt.Sprintf("GHz_%s.log", time.Now().Format("2006-01-02")) // создаём .log файл
 
@@ -107,3 +107,4 @@ func setupLogging() {
 	log.SetOutput(logFile)
 	log.Println("Запись в .log запущена")
 }
+*/

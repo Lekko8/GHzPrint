@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Функция генерации .doc файла (Word отлично понимает HTML-разметку с расширением .doc)
+// Функция генерации .doc файла
 func generateDocFile(files []FileWData, filename, date string) error {
 	content := fmt.Sprintf(`
 		<html>
@@ -34,12 +34,12 @@ func generateDocFile(files []FileWData, filename, date string) error {
 	return os.WriteFile(filename, []byte(content), 0644)
 }
 
-// собирает массив данных из файлов в 1 строку для вывода в .doc
-func dataTostring(datamass []FileWData) string {
+// Собирает массив данных из файлов в 1 строку для вывода в .doc
+func dataTostring(dataMass []FileWData) string {
 	var str strings.Builder
 	var number = 0
 	str.WriteString("<table><tr>")
-	for _, file := range datamass {
+	for _, file := range dataMass {
 		if number%3 != 0 || number == 0 {
 			str.WriteString("<td>")
 			number++
@@ -51,13 +51,13 @@ func dataTostring(datamass []FileWData) string {
 
 		str.WriteString(file.sample)
 		str.WriteString(" ")
-		str.WriteString(file.sampletime.Format("02.01.2006 15:04"))
-		str.WriteString("<table><tr><th>avgvalue</th><th>maxvalue</th></tr>")
+		str.WriteString(file.sampleTime.Format("02.01.2006 15:04"))
+		str.WriteString("<table><tr><th>avgValue</th><th>maxValue</th></tr>")
 		for _, data := range file.data {
 			str.WriteString("<tr><td>")
-			str.WriteString(data.avgvalue)
+			str.WriteString(data.avgValue)
 			str.WriteString("</td><td>")
-			str.WriteString(data.maxvalue)
+			str.WriteString(data.maxValue)
 			str.WriteString("</td></tr>")
 		}
 		str.WriteString("</td>")

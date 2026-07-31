@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// заполняет ВСЕ файлы данными в FileWData.data
+// Заполняет ВСЕ файлы данными в FileWData.data
 func dataCreate(files []FileWData) []FileWData {
 	var result []FileWData
 
@@ -22,17 +22,17 @@ func dataCreate(files []FileWData) []FileWData {
 	return result
 }
 
-// читает данные из .csv и заполняет FileWData.data
+// Читает данные из .csv и заполняет FileWData.data
 func readCSVData(file FileWData) FileWData {
-	csvPath := filepath.Join("C:\\P3-34 measurments", file.filename)
+	csvPath := filepath.Join(filePath, file.fileName)
 	csvFile, err := os.Open(csvPath)
 	if err != nil {
-		log.Printf("ОШИБКА: не удалось открыть файл %s: %v", file.filename, err)
+		log.Printf("ОШИБКА: не удалось открыть файл %s: %v", file.fileName, err)
 		return file
 	}
 	defer func() {
 		if err := csvFile.Close(); err != nil {
-			log.Printf("ОШИБКА: не удалось закрыть файл %s: %v", file.filename, err)
+			log.Printf("ОШИБКА: не удалось закрыть файл %s: %v", file.fileName, err)
 		}
 	}()
 
@@ -46,7 +46,7 @@ func readCSVData(file FileWData) FileWData {
 	for {
 		record, err := reader.Read()
 		if err == io.EOF {
-			log.Printf("ПРЕДУПРЕЖДЕНИЕ: файл %s не содержит данных", file.filename)
+			log.Printf("ПРЕДУПРЕЖДЕНИЕ: файл %s не содержит данных", file.fileName)
 			return file
 		}
 		if err != nil {
@@ -64,14 +64,14 @@ func readCSVData(file FileWData) FileWData {
 			break
 		}
 		if err != nil {
-			log.Printf("ОШИБКА при чтении файла %s: %v", file.filename, err)
+			log.Printf("ОШИБКА при чтении файла %s: %v", file.fileName, err)
 			continue
 		}
 
 		if isEmptyRecord(record) {
 			dataList = append(dataList, Data{
-				avgvalue: "",
-				maxvalue: "",
+				avgValue: "",
+				maxValue: "",
 				isValid:  false,
 			})
 			continue
@@ -89,14 +89,14 @@ func readCSVData(file FileWData) FileWData {
 
 		if errAvg == nil && errMax == nil {
 			dataList = append(dataList, Data{
-				avgvalue: avgVal,
-				maxvalue: maxVal,
+				avgValue: avgVal,
+				maxValue: maxVal,
 				isValid:  true,
 			})
 		} else {
 			dataList = append(dataList, Data{
-				avgvalue: "",
-				maxvalue: "",
+				avgValue: "",
+				maxValue: "",
 				isValid:  false,
 			})
 		}
@@ -106,7 +106,7 @@ func readCSVData(file FileWData) FileWData {
 	return file
 }
 
-// проверяем, что запись пустая
+// Проверяем, что запись пустая
 func isEmptyRecord(record []string) bool {
 	if len(record) == 0 {
 		return true

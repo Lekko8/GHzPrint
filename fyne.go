@@ -5,12 +5,13 @@ package main
 
 import (
 	_ "embed"
+	"log"
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
-	"log"
-	"time"
 )
 
 //go:embed icons/icon.jpg
@@ -38,7 +39,7 @@ func (g *fyneGUI) Run() error {
 		myApp.SetIcon(icon)
 	}
 
-	window.Resize(fyne.NewSize(300, 350)) // размер
+	window.Resize(fyne.NewSize(350, 300)) // размер
 
 	inputData := widget.NewEntry() // ввод поля даты
 	inputData.SetText(targetDate)  // имя поля даты
@@ -63,18 +64,18 @@ func (g *fyneGUI) Run() error {
 		orderName = inputOrderName.Text
 		files := dataCreate(listOfFiles)
 		results := calculateFiles(files)
-		createrXlsx(files, results, orderName, targetDate)
+		createXlsx(files, results, orderName, targetDate)
 		statusLabel.SetText("Файл .xlsx успешно создан")
 	})
 
 	window.SetContent(container.NewVBox( // разметка интерфейса
 		widget.NewLabel("Дата искомых файлов:"),
 		inputData,
+		widget.NewSeparator(),
+		researchBtn,
 		statusFiles,
 		widget.NewLabel("Введите номер заказа:"),
 		inputOrderName,
-		widget.NewSeparator(),
-		researchBtn,
 		widget.NewSeparator(),
 		startBtn,
 		widget.NewSeparator(),
